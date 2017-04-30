@@ -70,7 +70,6 @@ module.exports = (api) => {
           return res.status(204).send(data);
         }
 
-        //api.middlewares.cache.set('User', data, req.originalUrl);
         return res.send(data);
       });
     }
@@ -136,6 +135,38 @@ module.exports = (api) => {
 
   function remove(req, res, next) {
 
+    User.findById(req.params.id, (err, data) => {
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      if (!data) {
+        return res.status(204).send(data);
+      }
+    });
+
+    Product.find({seller: req.params.id}, (err, data) => {
+      let i = 0;
+      if (err) {
+        return res.status(500).send(err);
+      }
+
+      if (!data) {
+        return res.status(204).send(data);
+      }
+      while (i < data.length) {
+        let dataId = data[i]._id;
+        Product.findByIdAndRemove(dataId, (err, data) => {
+          if (err) {
+            return res.status(500).send(err);
+          }
+          if (!data) {
+            return res.status(204).send(data);
+          }
+        });
+        i++;
+      }
+    });
     User.findByIdAndRemove(req.params.id, (err, data) => {
       if (err) {
         return res.status(500).send(err);
@@ -144,32 +175,8 @@ module.exports = (api) => {
       if (!data) {
         return res.status(204).send(data);
       }
-
       return res.send(data);
     });
-    // Product.find({'seller' : req.params.id}, (err, data) => {
-    //   console.log(data);
-    //   if (err) {
-    //     return res.status(500).send(err);
-    //   }
-    //
-    //   if (!data) {
-    //     return res.status(204).send(data);
-    //   }
-    //
-    //   Product.findByIdAndRemove({'id' : data._id}, (err, data) => {
-    //     console.log(data);
-    //       if (err) {
-    //         return res.status(500).send(err);
-    //       }
-    //
-    //       if (!data) {
-    //         return res.status(204).send(data);
-    //       }
-    //
-    //       return res.send(data);
-    //   });
-    // });
   }
 
   function addCredit(req, res, next) {
