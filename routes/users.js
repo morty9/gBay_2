@@ -10,7 +10,7 @@ module.exports = (api) => {
     router.get('/:id',
         api.actions.users.findOne);
 
-    router.get('/:id/average',
+    router.get('/average/:id',
         api.actions.users.averageOrder);
 
     router.post('/',
@@ -22,7 +22,7 @@ module.exports = (api) => {
         api.middlewares.ensureAuthenticated,
         api.actions.users.updateUsers);
 
-    router.put('/:id/credit',
+    router.put('/credit/:id',
         api.middlewares.bodyParser.json(),
         api.middlewares.ensureAuthenticated,
         api.actions.users.addCredit);
