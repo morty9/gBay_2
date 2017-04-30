@@ -8,16 +8,20 @@ module.exports = (api) => {
     let order = new Order(req.body);
 
     order.buyer = userId;
-    //TO FIX BEFORE SELL
+
     order.save((err, data) => {
         if (err) {
             return res.status(500).send(err);
         }
 
+        if (!data) {
+          return res.status(201).send(data);
+        }
+
         if (data.note > 20 || data.note < 0) {
           return res.status(401).send('please.entry.a.note.between.0.and.20');
         }
-         
+
         order.seller = req.body.seller;
         order.product = req.body.product;
         User.findById(userId, (err, user) => {
@@ -34,6 +38,14 @@ module.exports = (api) => {
                 return res.status(204).send(product);
               }
 
+              if (product.seller == userId.toString()) {
+                return res.status(401).send('you.cant.buy.it');
+              }
+
+              if (product.isDirect == false) {
+                  return res.status(401).send('ordered.denied');
+              }
+
               addCreditToUser(product.seller, product.price);
             });
 
@@ -46,6 +58,10 @@ module.exports = (api) => {
                 }
                 if (!addToUser) {
                   return res.status(204).send(addToUser);
+                }
+
+                if (user.credit < credit) {
+                  return res.status(401).send('unefficient.credit');
                 }
 
                 user.credit -= credit;
@@ -64,8 +80,6 @@ module.exports = (api) => {
     });
   };
 
-
-  //STOP
   function findOne(req, res, next) {
     Order.findById(req.params.id, (err, data) => {
       if (err) {

@@ -3,7 +3,7 @@ const Promise = require('bluebird');
 
 module.exports = (api) => {
   api.mongoose = mongoose.connect(api.settings.db.url);
-  api.mongoose.promise = Promise;
+  //api.mongoose.promise = Promise;
   api.models = {
     User: require('./User')(api),
     Product: require('./Product')(api),
@@ -11,5 +11,6 @@ module.exports = (api) => {
     Opinion: require('./Opinion')(api),
     Category: require('./Category')(api),
     Token: require('./Token')(api),
+    Bid: require('./Bid')(api),
   };
 };
