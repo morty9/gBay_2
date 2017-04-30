@@ -33,8 +33,23 @@ module.exports = (api) => {
             }
 
             products.category.push(data._id.toString());
-              return res.send(data);
           });
+
+          User.findById(userId, (err, user) => {
+            if (err) {
+              return res.status(500).send(err);
+            }
+
+            user.products.push(data._id.toString());
+            user.save((err) => {
+                if (err) {
+                    return res.status(500).send();
+                }
+
+                return res.send(data);
+            });
+          });
+
         });
       }
     });
