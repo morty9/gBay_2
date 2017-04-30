@@ -6,11 +6,13 @@ module.exports = (api) => {
   function create(req, res, next) {
     const userId = req.userId;
     let order = new Order(req.body);
+    console.log(req);
 
     order.buyer = userId;
 
     order.save((err, data) => {
         if (err) {
+            console.log('error');
             return res.status(500).send(err);
         }
 

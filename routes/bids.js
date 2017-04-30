@@ -13,12 +13,12 @@ module.exports = (api) => {
     router.post('/',
       api.middlewares.bodyParser.json(),
       api.middlewares.ensureBidData,
-      //api.middlewares.ensureAuthenticated,
+      api.middlewares.ensureAuthenticated,
       api.actions.bids.create);
 
     router.put('/:id',
       api.middlewares.bodyParser.json(),
-      //api.middlewares.ensureAuthenticated,
+      api.middlewares.ensureAuthenticated,
       api.actions.bids.update);
 
     router.put('/bidding/:id',
@@ -31,7 +31,7 @@ module.exports = (api) => {
       api.actions.bids.checkBid);
 
     router.delete('/:id',
-      //api.middlewares.ensureAuthenticated,
+      api.middlewares.ensureAuthenticated,
       api.actions.bids.remove);
 
     return router;

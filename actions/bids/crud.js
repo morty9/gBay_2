@@ -1,7 +1,10 @@
+const Orders = require('../users/crud.js');
+
 module.exports = (api) => {
   const User = api.models.User;
   const Product = api.models.Product;
   const Bid = api.models.Bid;
+  const Order = api.models.Order;
 
   function create(req, res, next) {
     const userId = req.userId;
@@ -133,6 +136,7 @@ module.exports = (api) => {
 
   function checkBid(req, res, nest) {
     let date = new Date();
+    let order = new Order();
 
     Bid.findById(req.params.id, req.body, (err, data) => {
 
@@ -145,12 +149,11 @@ module.exports = (api) => {
       }
 
       if (data.endDate > date) {
-        return res.status(401).send('ok');
+        return res.status(401).send('bid.over');
       }
 
-      return res.send(data);
-    })
-
+      return res.status(500).send('bid.available');
+    });
   }
 
    return {
