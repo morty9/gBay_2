@@ -4,7 +4,7 @@ module.exports = (api) => {
   const Category = api.models.Category;
 
   function create(req, res, next) {
-    const userId = req.body.seller;
+    const userId = req.userId;
     const categoryId = req.body.category;
 
     let products = new Product(req.body);
