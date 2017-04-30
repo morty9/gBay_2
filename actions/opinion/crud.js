@@ -1,6 +1,7 @@
 module.exports = (api) => {
   const Opinion = api.models.Opinion;
   const User = api.models.User;
+  const Order = api.models.Order;
 
   function create(req, res, next) {
       const userId = req.userId;
@@ -9,36 +10,48 @@ module.exports = (api) => {
       opinion.user = userId;
       opinion.seller = sellerId;
 
-      Opinion.findOne({
-        user: opinion.user,
-        seller: opinion.seller
-      }, (err, found) => {
+      Order.findOne({'seller': sellerId}, {'buyer': userId}, (err, data) => {
         if (err) {
           return res.status(500).send(err);
         }
-        if (found) {
-          return res.status(401).send('opinion.already.attributed');
+        if (!data) {
+          return res.status(401).send('opinion.cant.be.created');
         }
-        else {
-          opinion.save((err, data) => {
-              if (err) {
-                  return res.status(500).send(err);
-              }
-              User.findById(sellerId, (err, user) => {
-                  if (err) {
-                      return res.status(500).send()
-                  }
-                  user.opinions.push(data._id.toString())
-                  user.save((err) => {
-                      if (err) {
-                          return res.status(500).send()
-                      }
-                      return res.send(data);
-                  });
-              });
-          });
-        }
-      });
+        Opinion.findOne({
+          user: opinion.user,
+          seller: opinion.seller
+        }, (err, found) => {
+          if (err) {
+            return res.status(500).send(err);
+          }
+          if (found) {
+            return res.status(401).send('opinion.already.attributed');
+          }
+          else {
+            opinion.save((err, data) => {
+                if (err) {
+                    return res.status(500).send(err);
+                }
+                User.findById(sellerId, (err, user) => {
+                    if (err) {
+                        return res.status(500).send()
+                    }
+                    user.opinions.push(data._id.toString())
+                    user.save((err) => {
+                        if (err) {
+                            return res.status(500).send()
+                        }
+                        return res.send(data);
+                    });
+                });
+            });
+          }
+        });
+      })
+
+
+
+
   };
 
   function findAll(req, res, next) {
