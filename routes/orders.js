@@ -13,7 +13,7 @@ module.exports = (api) => {
 
     router.post('/',
       api.middlewares.bodyParser.json(),
-      // api.middlewares.ensureAuthenticated,
+      api.middlewares.ensureAuthenticated,
       api.actions.orders.create);
 
     router.put('/:id',
