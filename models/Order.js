@@ -3,10 +3,6 @@ const timestamps = require('mongoose-timestamps');
 
 module.exports = (api) => {
   const schema = new Schema({
-    number: {
-      type: Number,
-      required: true
-    },
     date: {
       type: Date,
       required: true

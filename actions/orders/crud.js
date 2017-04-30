@@ -8,56 +8,64 @@ module.exports = (api) => {
     let order = new Order(req.body);
 
     order.buyer = userId;
-
+    //TO FIX BEFORE SELL
     order.save((err, data) => {
         if (err) {
             return res.status(500).send(err);
         }
 
+        if (data.note > 20 || data.note < 0) {
+          return res.status(401).send('please.entry.a.note.between.0.and.20');
+        }
+         
         order.seller = req.body.seller;
         order.product = req.body.product;
-
         User.findById(userId, (err, user) => {
             if (err) {
                 return res.status(500).send();
             }
-
             user.orders.push(data._id.toString());
-            user.save((err) => {
+
+            Product.findById(req.body.product, (err, product) => {
+              if (err) {
+                return res.status(500).send(err);
+              }
+              if (!product) {
+                return res.status(204).send(product);
+              }
+
+              addCreditToUser(product.seller, product.price);
+            });
+
+            function addCreditToUser(userId, credit){
+
+              User.findOne({'_id' : userId}, (err, addToUser) => {
+
                 if (err) {
-                    return res.status(500).send();
+                  return res.status(500).send(err);
+                }
+                if (!addToUser) {
+                  return res.status(204).send(addToUser);
                 }
 
-                return res.send(data);
-            });
+                user.credit -= credit;
+                addToUser.credit += credit;
+                addToUser.save();
+
+                user.save((err) => {
+                    if (err) {
+                        return res.status(500).send();
+                    }
+                    return res.send(data);
+                });
+              });
+            }
         });
     });
-
-    // Product.find(req.body.product, (err, data) => {
-    //   if (err) {
-    //     return res.status(500).send(err);
-    //   }
-    //
-    //   if (!data) {
-    //     return res.status(204).send(data);
-    //   }
-    //
-    //   User.find(req.body.seller, (err, seller) => {
-    //     if (err) {
-    //       return res.status(500).send(err);
-    //     }
-    //
-    //     if (!seller) {
-    //       return res.status(204).send(seller);
-    //     }
-    //
-    //     return User.addCredit(data.price);
-    //   })
-    //
-    // })
-
   };
 
+
+  //STOP
   function findOne(req, res, next) {
     Order.findById(req.params.id, (err, data) => {
       if (err) {
@@ -138,5 +146,4 @@ module.exports = (api) => {
      remove,
      findAllOrderBySeller
    };
-
 }
